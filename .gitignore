@@ -1,2 +1,2 @@
-*.retry
-tests/test.sh
+.idea
+.kitchen
