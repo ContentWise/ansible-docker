@@ -9,8 +9,10 @@ platforms:
   - name: centos-7
     driver:
       run_command: /usr/sbin/init
-      volume:
-        - /sys/fs/cgroup:/sys/fs/cgroup:ro
+      provision_command:
+        - yum update -y
+        - yum install net-tools -y
+        - yum install iproute -y
   - name: ubuntu-16.04
     driver:
       run_command: /sbin/init
@@ -21,6 +23,8 @@ provisioner:
   role_name: contentwise.docker
   ansible_verbose: true
   idempotency_test: true
+  require_chef_for_busser: true
+  require_ruby_for_busser: false
 
 suites:
   - name: default

@@ -1,28 +1,29 @@
-ifdef DOCKER_MACHINE_NAME
-mounted_volume = /tmp$(PWD)
-else
-mounted_volume = $(PWD)
-endif
-
-.PHONY: help test rsync logs
+.PHONY: help test logs
 
 .DEFAULT_GOAL := help
 
-rsync:			## Synchronize working directory with docker-machine directory
-	@if [ ! -z "$DOCKER_MACHINE_NAME" ]; then \
-		echo "Syncing working directory with docker machine's directory '${mounted_volume}'" ; \
-		docker-machine ssh ${DOCKER_MACHINE_NAME} mkdir -p ${mounted_volume} && \
-		docker-machine scp -r -d ${PWD}/ ${DOCKER_MACHINE_NAME}:${mounted_volume}; \
-	fi
+ifeq ($(shell if docker-machine active > /dev/null 2>&1 ; then echo true; else echo false; fi),true)
+	WORKDIR = /tmp$(PWD)
+else
+	WORKDIR = $(PWD)
+endif
 
-test: rsync		## Test the role using Test Kitchen. By default 'kitchen test' is run. Different kitchen commands can be run using the 'cmd' variable. E.g.: 'make test cmd=converge'
-	docker run -it --rm -v /var/run/docker.sock:/var/run/docker.sock -v $(mounted_volume):/workspace -w /workspace --net="host" contentwise/test-kitchen-ansible $${cmd:-test}
+define docker_machine_rsync
+	if [ -n "$(1)" ] && docker-machine active > /dev/null 2>&1 ; then \
+		ssh-add ~/.docker/machine/machines/`docker-machine active`/id_rsa ; \
+		rsync -avP -e "docker-machine ssh `docker-machine active`" --delete --exclude .git/ --exclude .gitignore --exclude-from .gitignore $(1)/ :/tmp`pwd` ; \
+	fi
+endef
+
+test:			## Test the role using Test Kitchen. By default 'kitchen test' is run. Different kitchen commands can be run using the 'cmd' variable (e.g.: 'make test cmd=converge')
+	@$(call docker_machine_rsync,$(PWD))
+	@docker run -it --rm -v /var/run/docker.sock:/var/run/docker.sock -v $(WORKDIR):/workdir -w /workdir --net="host" contentwise/test-kitchen-ansible $${cmd:-test}
 
 logs:			## Show logs available under the path specified by the 'path' variable. E.g.: 'make logs path=.kitchen/lgos/default-centos-72.log | less'
-	@if [ ! -z "$DOCKER_MACHINE_NAME" ]; then \
-		docker-machine ssh ${DOCKER_MACHINE_NAME} cat ${mounted_volume}/${path}; \
+	@if docker-machine active > /dev/null 2>&1; then \
+		docker-machine ssh `docker-machine active` cat ${WORKDIR}/${path}; \
 	else \
-		cat ${mounted_volume}/${path}; \
+		cat ${WORKDIR}/${path}; \
 	fi
 
 help:			## Show this help
