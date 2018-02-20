@@ -1,22 +1,28 @@
 ---
-# The `docker_edition` should be either `ce` (Community Edition) or `ee` (Enterprise Edition). 
-# You can also specify a specific version of Docker to install using a format like `docker-{{ docker_edition }}-<VERSION>`. 
-# And you can control whether the package is installed, uninstalled, or at the latest version by setting `docker_package_state` 
-# to `present`, `absent`, or `latest`, respectively.
-docker_edition: 'ce'
-docker_package: "docker-{{ docker_edition }}"
-docker_package_state: present
+docker_version: "18.02.0"
+docker_channel: "edge"
 
-# Docker Compose options.
-docker_install_compose: true
-docker_compose_version: "1.16.1"
-docker_compose_path: /usr/local/bin/docker-compose
+docker_users: []
 
-# (Used only for Debian/Ubuntu.) You can switch the channel to `edge` if you want to use the Edge release.
-docker_apt_release_channel: stable
-docker_apt_repository: "deb https://download.docker.com/linux/{{ ansible_distribution|lower }} {{ ansible_distribution_release }} {{ docker_apt_release_channel }}"
+docker_rpm_location: "https://download.docker.com/linux/centos/7/x86_64/{{ docker_channel }}/Packages/docker-ce-{{ docker_version }}.ce-1.el7.centos.x86_64.rpm"
+docker_deb_location: "https://download.docker.com/linux/ubuntu/dists/xenial/pool/{{ docker_channel }}/amd64/docker-ce_{{ docker_version }}~ce-0~ubuntu_amd64.deb"
 
-# (Used only for RedHat/CentOS.) You can enable the Edge or Test repo by setting the respective vars to `1`.
-docker_yum_repo_url: https://download.docker.com/linux/centos/docker-{{ docker_edition }}.repo
-docker_yum_repo_enable_edge: 0
-docker_yum_repo_enable_test: 0
+docker_install_compose: True
+docker_compose_version: "1.19.0"
+docker_compose_bin_location: https://github.com/docker/compose/releases/download/{{ docker_compose_version }}/docker-compose-Linux-x86_64
+
+# docker_package: "docker-{{ docker_edition }}"
+# docker_package_state: present
+
+# docker_install_compose: true
+# docker_compose_version: "1.16.1"
+# docker_compose_path: /usr/local/bin/docker-compose
+
+# # (Used only for Debian/Ubuntu.) You can switch the channel to `edge` if you want to use the Edge release.
+# docker_apt_release_channel: stable
+# docker_apt_repository: "deb https://download.docker.com/linux/{{ ansible_distribution|lower }} {{ ansible_distribution_release }} {{ docker_apt_release_channel }}"
+
+# # (Used only for RedHat/CentOS.) You can enable the Edge or Test repo by setting the respective vars to `1`.
+# docker_yum_repo_url: https://download.docker.com/linux/centos/docker-{{ docker_edition }}.repo
+# docker_yum_repo_enable_edge: 0
+# docker_yum_repo_enable_test: 0

@@ -1,14 +1,23 @@
 ---
-- include_tasks: setup-RedHat.yml
+- name: install docker
+  yum:
+    name: "{{ docker_rpm_location }}"
   when: ansible_os_family == 'RedHat'
 
-- include_tasks: setup-Debian.yml
+- name: install docker
+  apt:
+    name: "{{ docker_deb_location }}"
   when: ansible_os_family == 'Debian'
 
-- name: Install Docker.
-  package: name={{ docker_package }} state={{ docker_package_state }}
+- name: add users to "docker" group
+  user:
+    name: "{{ item }}"
+    groups: "docker"
+    append: True
+  with_items: "{{ docker_users }}"
+  when: docker_users
 
-- name: Ensure Docker is started and enabled at boot.
+- name: ensure Docker is started and enabled at boot
   service:
     name: docker
     state: started

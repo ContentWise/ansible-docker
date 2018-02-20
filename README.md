@@ -8,12 +8,15 @@ Available variables with their default values are defined in [defaults/main.yml]
 
 ## Supported Platform
 
-Checkout [Test Kitchen configuration](.kitchen.yml) to see what platforms are supported and tested.
+* Centos 7
+* Ubuntu 16.04
 
 ## Example Playbook
 
-Checkout [integration tests](test/integration) directory for example playbooks.
+Checkout [test](test) directory for example playbooks.
 
 ## License
 
-MIT / BSD
+Author: Marco Miglierina <marco.miglierina@contentwise.tv>
+
+Licensed under the Apache License V2.0. See the [LICENSE file](LICENSE) for details.
