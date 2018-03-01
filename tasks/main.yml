@@ -4,9 +4,13 @@
     name: "{{ docker_rpm_location }}"
   when: ansible_os_family == 'RedHat'
 
-- name: install docker
-  apt:
-    name: "{{ docker_deb_location }}"
+- block:
+    - name: install prerequisites
+      package:
+        name: libseccomp2
+    - name: install docker
+      apt:
+        deb: "{{ docker_deb_location }}"
   when: ansible_os_family == 'Debian'
 
 - name: add users to "docker" group
