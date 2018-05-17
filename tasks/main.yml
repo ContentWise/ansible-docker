@@ -1,25 +1,9 @@
 ---
-- name: install docker
-  yum:
-    name: "{{ docker_rpm_location }}"
+- include_tasks: setup-RedHat.yml
   when: ansible_os_family == 'RedHat'
 
-- block:
-    - name: install prerequisites
-      package:
-        name: libseccomp2
-    - name: install docker
-      apt:
-        deb: "{{ docker_deb_location }}"
+- include_tasks: setup-Debian.yml
   when: ansible_os_family == 'Debian'
-
-- name: add users to "docker" group
-  user:
-    name: "{{ item }}"
-    groups: "docker"
-    append: True
-  with_items: "{{ docker_users }}"
-  when: docker_users
 
 - name: ensure Docker is started and enabled at boot
   service:
@@ -27,5 +11,12 @@
     state: started
     enabled: yes
 
+- name: Ensure handlers are notified now to avoid firewall conflicts.
+  meta: flush_handlers
+  when: docker_restart_on_package_change
+
 - include_tasks: docker-compose.yml
   when: docker_install_compose
+
+- include_tasks: docker-users.yml
+  when: docker_users

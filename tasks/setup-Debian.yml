@@ -1,0 +1,18 @@
+---
+- name: Ensure old versions of Docker are not installed.
+  package:
+    name: '{{ item }}'
+    state: absent
+  with_items:
+    - docker
+    - docker-engine
+
+- name: Ensure dependencies are installed.
+  apt:
+    name: libseccomp2
+    state: present
+
+- name: install docker
+  apt:
+    deb: "{{ docker_deb_location }}"
+  notify: restart docker
