@@ -5,6 +5,14 @@
 - include_tasks: setup-Debian.yml
   when: ansible_os_family == 'Debian'
 
+# https://docs.docker.com/storage/storagedriver/device-mapper-driver/#configure-direct-lvm-mode-for-production
+- name: configure direct lvm
+  template:
+    src: daemon.json.j2
+    dest: /etc/docker/daemon.json
+  when: docker_directlvm_device is defined
+  notify: restart docker
+
 - name: ensure Docker is started and enabled at boot
   service:
     name: docker
